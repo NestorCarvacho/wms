@@ -1,0 +1,51 @@
+[R-N¯],[Nombre del Requerimiento],Tipo Requerimiento,Actores Usuarios Relacionados,[Descripci¢n corta del requerimiento]
+R.01,Mantenimiento Gondolas,Funcional,Administrador y Mantenedor,"Permitir registrar, eliminar, modificar y buscar los datos de las gondolas."
+R.02,Asignaci¢n de Productos a Gondolas,Funcional,Adminstrador y Mantenedor,Permitir asignar productos a diferentes gondolas seg£n el stock disponible.
+R.03,Estado del Producto,Funcional,Administrador y Operador,"Permitir cambiar y seguir la historia de estado del producto (por ejemplo, ingresado, procesando, finalizado)."
+R.04,Establecimiento de Estado de Entrega,Funcional,Operador y Cliente,Permitir registrar el estado de entrega de los productos a clientes.
+R.05,Ingreso de Productos al AlmacÇn,Funcional,Administrador y Mantenedor,Permitir registrar la recepci¢n y entrada de nuevos productos al almacÇn.
+R.06,Extracci¢n de Productos del AlmacÇn,Funcional,Operador y Administrador,Permitir extraer productos del almacÇn para procesamiento o entrega.
+R.07,Inventario Semanal,Funcional,Administrador y Analista,Generaci¢n autom†tica de inventario semanal con datos actualizados.
+R.08,Gesti¢n de Stock Cr°tico,Funcional,Administrador,Permitir identificar y gestionar productos que est†n en stock cr°tico para evitar agotamientos.
+R.09,Asignaci¢n de Roles Usuarios,Funcional,Administrador y Mantenedor,Permitir asignar roles a usuarios seg£n su funci¢n en el sistema.
+R.10,Acceso Seguro al AlmacÇn,Funcional,Administrador,Permitir control de acceso seguro y autorizado al almacÇn.
+R.11,Seguimiento de Movimientos Internos,Funcional,Operador y Mantenedor,Permitir rastrear movimientos internos dentro del almacÇn.
+R.12,Integraci¢n con Sistemas ERP/CRM,Funcional,TÇcnico y Administrador,Sincronizaci¢n autom†tica de datos con sistemas externos para optimizar flujo operativo.
+R.13,Gesti¢n de Lotes y Vencimientos,Funcional,Operador y Mantenedor,Permitir rastrear lotes y vencimientos de productos.
+R.14,Generaci¢n de Reportes de Inventario,Funcional,Analista y Adminstrador,Generar reportes detallados sobre el inventario del almacÇn.
+R.15,Rastreo de Paquetes en AlmacÇn,Funcional,Mantenedor y Operador,"Identificaci¢n, seguimiento y rastreo de paquetes dentro del almacÇn."
+R.16,Control de Calidad de Productos,Funcional,Inspeccionador,Implementaci¢n y registro de pruebas de calidad para productos.
+R.17,Gesti¢n de Cajas y Palets,Funcional,Mantenedor,Permitir asignar cajas y palets a productos seg£n su tipo.
+R.18,Movimientos entre Gondolas,Funcional,Operador y Mantenedor,Permitir el movimiento de productos entre diferentes gondolas.
+R.19,Gesti¢n de Proveedores,Funcional,Administrador,Permitir la gesti¢n de proveedores y sus detalles.
+R.20,Gesti¢n de Clientes,Funcional,Adminstrador,Permitir la gesti¢n de clientes y sus detalles.
+R.21,Movimientos Internos para Traslados,Funcional,Operador,Permitir el traslado de productos entre diferentes secciones del almacÇn.
+R.22,Gesti¢n de Pedidos Clientes,Funcional,Operador y Administrador,Generar y gestionar pedidos de clientes.
+R.23,Mantenimiento de Facturaci¢n,Funcional,Administrador,Permitir la facturaci¢n autom†tica de productos vendidos.
+R.24,Gesti¢n de Devoluciones,Funcional,Operador,Permitir el registro y gesti¢n de devoluciones por parte de clientes.
+R.25,Mantenimiento de Precios y Descuentos,Funcional,Adminstrador,Permitir la gesti¢n de precios y descuentos aplicables a productos.
+R.26,Gesti¢n de Ventas al Detall,Funcional,Operador,Permitir la venta de productos al detalle.
+R.27,Mantenimiento de Almacenes,Funcional,Administrador,Permitir el registro y gesti¢n de m£ltiples almacenes.
+R.28,Gesti¢n de Zonas de Almacenamiento,Funcional,Mantenedor,Permitir la divisi¢n del almacÇn en diferentes zonas para optimizaci¢n del espacio.
+R.29,Mantenimiento de Unidades de Medida,Funcional,Adminstrador,Permitir el registro y gesti¢n de unidades de medida para productos.
+R.30,Gesti¢n de Inventario en Tiempo Real,Funcional,Operador,Permitir el seguimiento en tiempo real del inventario.
+R.31,Especificaciones de Seguridad,No Funcional,TÇcnico y Usuario,Implementaci¢n de medidas de seguridad para protecci¢n de datos.
+R.32,Rendimiento del Sistema,No Funcional,TÇcnico,Tiempo m†ximo permitido para procesar transacciones y capacidad de manejo de operaciones simult†neas.
+R.33,Dise§o Intuitivo de Interfaz,No Funcional,Desarrollador e Usuario,Dise§o f†cil de usar y multilingÅe.
+R.34,Compatibilidad con Sistemas Operativos Diversos,No Funcional,TÇcnico,Soporte para diferentes sistemas operativos y navegadores web.
+R.35,Exposici¢n de API RESTful,No Funcional,Desarrollador e Integrador,Exposici¢n de una API RESTful para intercambio de datos.
+R.36,Proceso de Actualizaci¢n y Soporte TÇcnico,No Funcional,TÇcnico e Usuario,Proceso de actualizaci¢n y soporte tÇcnico con garant°a de 1 a§o.
+R.37,Escalabilidad del Sistema,No Funcional,TÇcnico,Dise§o modular para permitir f†cil expansi¢n en el futuro.
+R.38,Cumplimiento de Regulaciones,No Funcional,Liderazgo e Integrador,Cumplimiento con regulaciones locales y extranjeras sobre gesti¢n de datos y operaciones log°sticas.
+R.39,Alojamiento en Nube,No Funcional,TÇcnico,Uso de tecnolog°as de nube para alojar el sistema.
+R.40,Uso Eficiente de Recursos,No Funcional,TÇcnico e Integrador,Implementaci¢n de algoritmos eficientes para optimizar rendimiento.
+R.41,Autorizaci¢n y Autenticaci¢n,No Funcional,TÇcnico e Usuario,Control de acceso seguro con autenticaci¢n multifactor.
+R.42,Potencial de Actualizaciones Futuras,No Funcional,TÇcnico e Integrador,Dise§o que permita f†cil actualizaci¢n y mejora del sistema en el futuro.
+R.43,Uso de API Segura,No Funcional,TÇcnico,Implementaci¢n de seguridad en APIs para prevenir ataques.
+R.44,Dise§o Robusto,No Funcional,Desarrollador e Integrador,Dise§o robusto que permita resistir fallos y mal uso del sistema.
+R.45,Rendimiento Estable,No Funcional,TÇcnico,Mantener un rendimiento estable incluso bajo carga alta.
+R.46,Sesiones Seguras,No Funcional,TÇcnico e Integrador,Implementaci¢n de sesiones seguras para usuarios finales.
+R.47,Backup y Restauraci¢n Automatizada,No Funcional,TÇcnico e Usuario,Implementaci¢n de sistemas automatizados de respaldo y restauraci¢n.
+R.48,Capacidad de Escalabilidad,No Funcional,TÇcnico,Dise§o que permita agregar o eliminar recursos sin afectar el rendimiento del sistema.
+R.49,Requisitos de Conectividad,No Funcional,Desarrollador e Integrador,Implementaci¢n de requisitos m°nimos para conectividad de red.
+R.50,Uso de Tecnolog°as Avanzadas,No Funcional,TÇcnico e Integrador,Uso de tecnolog°as avanzadas que permitan optimizar el rendimiento y la eficiencia del sistema.
