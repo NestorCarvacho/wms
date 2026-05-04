@@ -226,7 +226,3 @@ Para preguntas o problemas:
 1. Revisar `.copilot-instructions` de la capa relevante
 2. Revisar tests en `app/tests/`
 3. Documentación Swagger en `/api/v1/docs`
-
-## 📄 Licencia
-
-Interno - Visma
