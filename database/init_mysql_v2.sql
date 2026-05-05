@@ -8,21 +8,43 @@
 SET FOREIGN_KEY_CHECKS=0;
 
 -- ============================================
+-- 0. COMPANIES - Empresas
+-- ============================================
+CREATE TABLE companies (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID único de la empresa',
+    code VARCHAR(50) UNIQUE NOT NULL COMMENT 'Código único de la empresa (ej: EMP-01)',
+    name VARCHAR(255) NOT NULL COMMENT 'Nombre de la empresa',
+    tax_id VARCHAR(50) COMMENT 'RUT/NIF/Tax ID',
+    address TEXT COMMENT 'Dirección',
+    phone VARCHAR(50) COMMENT 'Teléfono',
+    email VARCHAR(255) COMMENT 'Email',
+    is_active BOOLEAN DEFAULT TRUE NOT NULL COMMENT 'Empresa activa/inactiva',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT 'Fecha de creación',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL COMMENT 'Última actualización',
+    INDEX idx_code (code),
+    INDEX idx_is_active (is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+-- ============================================
 -- 1. USERS - Usuarios del Sistema
 -- ============================================
 CREATE TABLE users (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID único del usuario',
-    email VARCHAR(255) UNIQUE NOT NULL COMMENT 'Email único del usuario',
+    company_id BIGINT NOT NULL COMMENT 'ID de la empresa a la que pertenece',
+    email VARCHAR(255) NOT NULL COMMENT 'Email del usuario',
     full_name VARCHAR(255) NOT NULL COMMENT 'Nombre completo del usuario',
     hashed_password VARCHAR(255) NOT NULL COMMENT 'Contraseña encriptada con bcrypt',
     role ENUM('admin', 'manager', 'operator', 'viewer') DEFAULT 'viewer' NOT NULL COMMENT 'Rol del usuario',
     is_active BOOLEAN DEFAULT TRUE NOT NULL COMMENT 'Usuario activo/inactivo',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT 'Fecha de creación',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL COMMENT 'Última actualización',
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
+    INDEX idx_company_id (company_id),
     INDEX idx_email (email),
     INDEX idx_role (role),
     INDEX idx_is_active (is_active),
-    INDEX idx_created_at (created_at)
+    INDEX idx_created_at (created_at),
+    UNIQUE KEY uk_email_company (email, company_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
 
 -- ============================================
@@ -30,7 +52,8 @@ CREATE TABLE users (
 -- ============================================
 CREATE TABLE warehouses (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID único del almacén',
-    code VARCHAR(50) UNIQUE NOT NULL COMMENT 'Código único del almacén (ej: WH-01)',
+    company_id BIGINT NOT NULL COMMENT 'ID de la empresa a la que pertenece',
+    code VARCHAR(50) NOT NULL COMMENT 'Código del almacén (ej: WH-01)',
     name VARCHAR(255) NOT NULL COMMENT 'Nombre del almacén',
     description TEXT COMMENT 'Descripción del almacén',
     location VARCHAR(255) COMMENT 'Ubicación geográfica del almacén',
@@ -39,11 +62,14 @@ CREATE TABLE warehouses (
     is_active BOOLEAN DEFAULT TRUE NOT NULL COMMENT 'Almacén activo/inactivo',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT 'Fecha de creación',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL COMMENT 'Última actualización',
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
     FOREIGN KEY (manager_id) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_company_id (company_id),
     INDEX idx_code (code),
     INDEX idx_is_active (is_active),
     INDEX idx_manager_id (manager_id),
-    INDEX idx_created_at (created_at)
+    INDEX idx_created_at (created_at),
+    UNIQUE KEY uk_code_company (code, company_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
 
 -- ============================================
@@ -51,15 +77,19 @@ CREATE TABLE warehouses (
 -- ============================================
 CREATE TABLE product_categories (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID único de la categoría',
-    code VARCHAR(50) UNIQUE NOT NULL COMMENT 'Código único de la categoría (ej: ELEC)',
+    company_id BIGINT NOT NULL COMMENT 'ID de la empresa a la que pertenece',
+    code VARCHAR(50) NOT NULL COMMENT 'Código de la categoría (ej: ELEC)',
     name VARCHAR(255) NOT NULL COMMENT 'Nombre de la categoría',
     description TEXT COMMENT 'Descripción de la categoría',
     is_active BOOLEAN DEFAULT TRUE NOT NULL COMMENT 'Categoría activa/inactiva',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT 'Fecha de creación',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL COMMENT 'Última actualización',
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
+    INDEX idx_company_id (company_id),
     INDEX idx_code (code),
     INDEX idx_is_active (is_active),
-    INDEX idx_created_at (created_at)
+    INDEX idx_created_at (created_at),
+    UNIQUE KEY uk_code_company (code, company_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
 
 -- ============================================
@@ -67,7 +97,8 @@ CREATE TABLE product_categories (
 -- ============================================
 CREATE TABLE products (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID único del producto',
-    sku VARCHAR(100) UNIQUE NOT NULL COMMENT 'SKU único del producto',
+    company_id BIGINT NOT NULL COMMENT 'ID de la empresa a la que pertenece',
+    sku VARCHAR(100) NOT NULL COMMENT 'SKU del producto',
     name VARCHAR(255) NOT NULL COMMENT 'Nombre del producto',
     description TEXT COMMENT 'Descripción del producto',
     category_id BIGINT NOT NULL COMMENT 'ID de la categoría del producto',
@@ -86,12 +117,15 @@ CREATE TABLE products (
     is_active BOOLEAN DEFAULT TRUE NOT NULL COMMENT 'Producto activo/inactivo',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT 'Fecha de creación',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL COMMENT 'Última actualización',
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
     FOREIGN KEY (category_id) REFERENCES product_categories(id) ON DELETE RESTRICT,
+    INDEX idx_company_id (company_id),
     INDEX idx_sku (sku),
     INDEX idx_category_id (category_id),
     INDEX idx_is_active (is_active),
     INDEX idx_is_perishable (is_perishable),
-    INDEX idx_created_at (created_at)
+    INDEX idx_created_at (created_at),
+    UNIQUE KEY uk_sku_company (sku, company_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
 
 -- ============================================
@@ -163,7 +197,8 @@ CREATE TABLE inventory (
 -- ============================================
 CREATE TABLE suppliers (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID único del proveedor',
-    code VARCHAR(50) UNIQUE NOT NULL COMMENT 'Código único del proveedor',
+    company_id BIGINT NOT NULL COMMENT 'ID de la empresa a la que pertenece',
+    code VARCHAR(50) NOT NULL COMMENT 'Código del proveedor',
     name VARCHAR(255) NOT NULL COMMENT 'Nombre del proveedor',
     contact_person VARCHAR(255) COMMENT 'Persona de contacto',
     email VARCHAR(255) COMMENT 'Email de contacto',
@@ -175,9 +210,12 @@ CREATE TABLE suppliers (
     is_active BOOLEAN DEFAULT TRUE NOT NULL COMMENT 'Proveedor activo/inactivo',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT 'Fecha de creación',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL COMMENT 'Última actualización',
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
+    INDEX idx_company_id (company_id),
     INDEX idx_code (code),
     INDEX idx_is_active (is_active),
-    INDEX idx_created_at (created_at)
+    INDEX idx_created_at (created_at),
+    UNIQUE KEY uk_code_company (code, company_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
 
 -- ============================================
@@ -229,7 +267,8 @@ CREATE TABLE purchase_order_details (
 -- ============================================
 CREATE TABLE customers (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID único del cliente',
-    code VARCHAR(50) UNIQUE NOT NULL COMMENT 'Código único del cliente',
+    company_id BIGINT NOT NULL COMMENT 'ID de la empresa a la que pertenece',
+    code VARCHAR(50) NOT NULL COMMENT 'Código del cliente',
     name VARCHAR(255) NOT NULL COMMENT 'Nombre del cliente',
     contact_person VARCHAR(255) COMMENT 'Persona de contacto',
     email VARCHAR(255) COMMENT 'Email de contacto',
@@ -241,10 +280,13 @@ CREATE TABLE customers (
     is_active BOOLEAN DEFAULT TRUE NOT NULL COMMENT 'Cliente activo/inactivo',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT 'Fecha de creación',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL COMMENT 'Última actualización',
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
+    INDEX idx_company_id (company_id),
     INDEX idx_code (code),
     INDEX idx_customer_type (customer_type),
     INDEX idx_is_active (is_active),
-    INDEX idx_created_at (created_at)
+    INDEX idx_created_at (created_at),
+    UNIQUE KEY uk_code_company (code, company_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
 
 -- ============================================
@@ -590,6 +632,7 @@ CREATE TABLE return_order_details (
 -- ============================================
 CREATE TABLE audit_log (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID único del log',
+    company_id BIGINT NOT NULL COMMENT 'ID de la empresa a la que pertenece',
     user_id BIGINT COMMENT 'ID del usuario',
     action VARCHAR(100) NOT NULL COMMENT 'Acción realizada',
     table_name VARCHAR(100) COMMENT 'Tabla afectada',
@@ -598,7 +641,9 @@ CREATE TABLE audit_log (
     new_values JSON COMMENT 'Valores nuevos (JSON)',
     ip_address VARCHAR(45) COMMENT 'Dirección IP',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT 'Fecha/hora del evento',
+    FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE RESTRICT,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_company_id (company_id),
     INDEX idx_user_id (user_id),
     INDEX idx_action (action),
     INDEX idx_table_name (table_name),
@@ -741,28 +786,32 @@ SET FOREIGN_KEY_CHECKS=1;
 -- DATOS INICIALES DE EJEMPLO
 -- ============================================
 
+-- Insertar empresa de ejemplo
+INSERT INTO companies (code, name, tax_id, address, phone, email, is_active)
+VALUES ('EMP-001', 'Empresa Ejemplo S.A.', '12345678-9', 'Calle Principal 123', '+56 2 1234 5678', 'info@empresa.com', TRUE);
+
 -- Insertar usuarios
-INSERT INTO users (email, full_name, hashed_password, role, is_active)
+INSERT INTO users (company_id, email, full_name, hashed_password, role, is_active)
 VALUES
-    ('admin@wms.com', 'Administrador', 'pass123', 'admin', TRUE),
-    ('manager@wms.com', 'Gerente Almacén', 'pass123', 'manager', TRUE),
-    ('operator@wms.com', 'Operario', 'pass123', 'operator', TRUE);
+    (1, 'admin@wms.com', 'Administrador', 'pass123', 'admin', TRUE),
+    (1, 'manager@wms.com', 'Gerente Almacén', 'pass123', 'manager', TRUE),
+    (1, 'operator@wms.com', 'Operario', 'pass123', 'operator', TRUE);
 
 -- Insertar categorías de productos
-INSERT INTO product_categories (code, name, description, is_active)
+INSERT INTO product_categories (company_id, code, name, description, is_active)
 VALUES
-    ('ELEC', 'Electrónica', 'Productos electrónicos en general', TRUE),
-    ('ALIM', 'Alimentos', 'Productos alimenticios', TRUE),
-    ('CONS', 'Consumibles', 'Productos consumibles', TRUE),
-    ('ROPA', 'Ropa', 'Prendas de vestir', TRUE),
-    ('MUEBLES', 'Muebles', 'Muebles y accesorios', TRUE);
+    (1, 'ELEC', 'Electrónica', 'Productos electrónicos en general', TRUE),
+    (1, 'ALIM', 'Alimentos', 'Productos alimenticios', TRUE),
+    (1, 'CONS', 'Consumibles', 'Productos consumibles', TRUE),
+    (1, 'ROPA', 'Ropa', 'Prendas de vestir', TRUE),
+    (1, 'MUEBLES', 'Muebles', 'Muebles y accesorios', TRUE);
 
 -- Insertar almacenes
-INSERT INTO warehouses (code, name, description, location, capacity_m3, manager_id, is_active)
+INSERT INTO warehouses (company_id, code, name, description, location, capacity_m3, manager_id, is_active)
 VALUES
-    ('WH-01', 'Almacén Central', 'Almacén principal', 'Centro', 5000.00, 2, TRUE),
-    ('WH-02', 'Almacén Norte', 'Almacén regional norte', 'Norte', 2000.00, 3, TRUE),
-    ('WH-03', 'Almacén Sur', 'Almacén regional sur', 'Sur', 2000.00, 2, TRUE);
+    (1, 'WH-01', 'Almacén Central', 'Almacén principal', 'Centro', 5000.00, 2, TRUE),
+    (1, 'WH-02', 'Almacén Norte', 'Almacén regional norte', 'Norte', 2000.00, 3, TRUE),
+    (1, 'WH-03', 'Almacén Sur', 'Almacén regional sur', 'Sur', 2000.00, 2, TRUE);
 
 -- Insertar zonas de almacén
 INSERT INTO warehouse_zones (warehouse_id, code, name, zone_type, description, is_active)
@@ -775,18 +824,18 @@ VALUES
     (1, 'SHIP-01', 'Envío', 'shipping', 'Zona de envío', TRUE);
 
 -- Insertar proveedores
-INSERT INTO suppliers (code, name, contact_person, email, phone, address, city, country, payment_terms, is_active)
+INSERT INTO suppliers (company_id, code, name, contact_person, email, phone, address, city, country, payment_terms, is_active)
 VALUES
-    ('SUP-001', 'Proveedor Electrónico SA', 'Juan Pérez', 'juan@proveedor1.com', '+56 2 1234 5678', 'Calle 1 #100', 'Santiago', 'Chile', 'Net 30', TRUE),
-    ('SUP-002', 'Distribuidora de Alimentos', 'María García', 'maria@proveedor2.com', '+56 2 8765 4321', 'Calle 2 #200', 'Santiago', 'Chile', 'Net 15', TRUE),
-    ('SUP-003', 'Importadora Global', 'Carlos López', 'carlos@proveedor3.com', '+56 2 5555 6666', 'Calle 3 #300', 'Valparaíso', 'Chile', 'Net 45', TRUE);
+    (1, 'SUP-001', 'Proveedor Electrónico SA', 'Juan Pérez', 'juan@proveedor1.com', '+56 2 1234 5678', 'Calle 1 #100', 'Santiago', 'Chile', 'Net 30', TRUE),
+    (1, 'SUP-002', 'Distribuidora de Alimentos', 'María García', 'maria@proveedor2.com', '+56 2 8765 4321', 'Calle 2 #200', 'Santiago', 'Chile', 'Net 15', TRUE),
+    (1, 'SUP-003', 'Importadora Global', 'Carlos López', 'carlos@proveedor3.com', '+56 2 5555 6666', 'Calle 3 #300', 'Valparaíso', 'Chile', 'Net 45', TRUE);
 
 -- Insertar clientes
-INSERT INTO customers (code, name, contact_person, email, phone, address, city, country, customer_type, is_active)
+INSERT INTO customers (company_id, code, name, contact_person, email, phone, address, city, country, customer_type, is_active)
 VALUES
-    ('CUST-001', 'Tienda Centro', 'Ana Martínez', 'ana@tienda1.com', '+56 2 1111 2222', 'Av. Principal #500', 'Santiago', 'Chile', 'retail', TRUE),
-    ('CUST-002', 'Distribuidor Regional', 'Roberto Silva', 'roberto@dist.com', '+56 2 3333 4444', 'Av. Secundaria #600', 'Valparaíso', 'Chile', 'distributor', TRUE),
-    ('CUST-003', 'Mayorista Sur', 'Laura Díaz', 'laura@mayorista.com', '+56 2 5555 7777', 'Calle Sur #700', 'Concepción', 'Chile', 'wholesale', TRUE);
+    (1, 'CUST-001', 'Tienda Centro', 'Ana Martínez', 'ana@tienda1.com', '+56 2 1111 2222', 'Av. Principal #500', 'Santiago', 'Chile', 'retail', TRUE),
+    (1, 'CUST-002', 'Distribuidor Regional', 'Roberto Silva', 'roberto@dist.com', '+56 2 3333 4444', 'Av. Secundaria #600', 'Valparaíso', 'Chile', 'distributor', TRUE),
+    (1, 'CUST-003', 'Mayorista Sur', 'Laura Díaz', 'laura@mayorista.com', '+56 2 5555 7777', 'Calle Sur #700', 'Concepción', 'Chile', 'wholesale', TRUE);
 
 -- Insertar estantes/góndolas
 INSERT INTO shelves (warehouse_id, code, name, shelf_type, row_number, column_number, level_number, capacity_units, capacity_weight_kg, is_active)

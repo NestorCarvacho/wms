@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -39,14 +39,14 @@ class SecurityService:
         to_encode = data.copy()
 
         if expires_delta:
-            expire = datetime.utcnow() + expires_delta
+            expire = datetime.now(timezone.utc) + expires_delta
         else:
             if token_type == "access":
-                expire = datetime.utcnow() + timedelta(
+                expire = datetime.now(timezone.utc) + timedelta(
                     minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
                 )
             else:
-                expire = datetime.utcnow() + timedelta(
+                expire = datetime.now(timezone.utc) + timedelta(
                     days=settings.REFRESH_TOKEN_EXPIRE_DAYS
                 )
 
@@ -89,4 +89,9 @@ async def get_current_user(credentials: HTTPAuthCredentials = Depends(security))
             detail="Token inválido",
         )
 
-    return {"user_id": user_id, "email": payload.get("email")}
+    return {
+        "user_id": user_id,
+        "email": payload.get("email"),
+        "company_id": payload.get("company_id"),
+        "role": payload.get("role")
+    }

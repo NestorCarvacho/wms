@@ -18,23 +18,23 @@ class IProductService(ABC):
     """Interface para servicio de productos"""
 
     @abstractmethod
-    def create_product(self, product_create: ProductCreate) -> ProductResponse:
+    def create_product(self, product_create: ProductCreate, company_id: int) -> ProductResponse:
         pass
 
     @abstractmethod
-    def get_product(self, product_id: int) -> ProductResponse:
+    def get_product(self, product_id: int, company_id: int) -> ProductResponse:
         pass
 
     @abstractmethod
-    def get_all_products(self, filters: ProductFilters) -> PaginatedProductResponse:
+    def get_all_products(self, company_id: int, filters: ProductFilters) -> PaginatedProductResponse:
         pass
 
     @abstractmethod
-    def update_product(self, product_id: int, product_update: ProductUpdate) -> ProductResponse:
+    def update_product(self, product_id: int, company_id: int, product_update: ProductUpdate) -> ProductResponse:
         pass
 
     @abstractmethod
-    def delete_product(self, product_id: int, soft: bool = True) -> bool:
+    def delete_product(self, product_id: int, company_id: int, soft: bool = True) -> bool:
         pass
 
 
@@ -44,16 +44,17 @@ class ProductService(IProductService):
     def __init__(self, db: Session):
         self.product_repository = ProductRepository(db)
 
-    def create_product(self, product_create: ProductCreate) -> ProductResponse:
-        """Crea un nuevo producto"""
-        existing_product = self.product_repository.get_by_sku(product_create.sku)
+    def create_product(self, product_create: ProductCreate, company_id: int) -> ProductResponse:
+        """Crea un nuevo producto en una empresa"""
+        existing_product = self.product_repository.get_by_sku(product_create.sku, company_id)
         if existing_product:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"El SKU '{product_create.sku}' ya existe",
+                detail=f"El SKU '{product_create.sku}' ya existe en esta empresa",
             )
 
         product = Product(
+            company_id=company_id,
             sku=product_create.sku,
             name=product_create.name,
             description=product_create.description,
@@ -65,9 +66,9 @@ class ProductService(IProductService):
         created_product = self.product_repository.create(product)
         return ProductResponse.model_validate(created_product)
 
-    def get_product(self, product_id: int) -> ProductResponse:
-        """Obtiene un producto por ID"""
-        product = self.product_repository.get_by_id(product_id)
+    def get_product(self, product_id: int, company_id: int) -> ProductResponse:
+        """Obtiene un producto de una empresa"""
+        product = self.product_repository.get_by_id(product_id, company_id)
         if not product:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -75,9 +76,10 @@ class ProductService(IProductService):
             )
         return ProductResponse.model_validate(product)
 
-    def get_all_products(self, filters: ProductFilters) -> PaginatedProductResponse:
-        """Obtiene todos los productos con filtros avanzados y paginación"""
+    def get_all_products(self, company_id: int, filters: ProductFilters) -> PaginatedProductResponse:
+        """Obtiene productos de una empresa con filtros avanzados y paginación"""
         products, total = self.product_repository.get_all(
+            company_id=company_id,
             skip=filters.skip,
             limit=filters.limit,
             search=filters.search,
@@ -101,32 +103,23 @@ class ProductService(IProductService):
             total_pages=total_pages,
         )
 
-    def update_product(self, product_id: int, product_update: ProductUpdate) -> ProductResponse:
-        """Actualiza un producto"""
-        product = self.product_repository.get_by_id(product_id)
+    def update_product(self, product_id: int, company_id: int, product_update: ProductUpdate) -> ProductResponse:
+        """Actualiza un producto de una empresa"""
+        product = self.product_repository.get_by_id(product_id, company_id)
         if not product:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Producto no encontrado",
             )
 
-        # Si se intenta actualizar SKU, validar que no existe
-        if product_update.sku and product_update.sku != product.sku:
-            existing_product = self.product_repository.get_by_sku(product_update.sku)
-            if existing_product:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"El SKU '{product_update.sku}' ya existe",
-                )
-
-        update_data = product_update.dict(exclude_unset=True)
-        updated_product = self.product_repository.update(product_id, **update_data)
+        update_data = product_update.model_dump(exclude_unset=True)
+        updated_product = self.product_repository.update(product_id, company_id, **update_data)
 
         return ProductResponse.model_validate(updated_product)
 
-    def delete_product(self, product_id: int, soft: bool = True) -> bool:
-        """Elimina un producto (soft delete por defecto)"""
+    def delete_product(self, product_id: int, company_id: int, soft: bool = True) -> bool:
+        """Elimina un producto de una empresa (soft delete por defecto)"""
         if soft:
-            return self.product_repository.soft_delete(product_id)
+            return self.product_repository.soft_delete(product_id, company_id)
         else:
-            return self.product_repository.delete(product_id)
+            return self.product_repository.delete(product_id, company_id)

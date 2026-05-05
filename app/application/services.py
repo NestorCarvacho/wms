@@ -27,14 +27,14 @@ class AuthService(IAuthService):
     def __init__(self, db: Session):
         self.user_repository = UserRepository(db)
 
-    def login(self, email: str, password: str) -> Tuple[str, str, int]:
+    def login(self, email: str, password: str) -> Tuple[str, str, int, int]:
         """
         Autentica un usuario y devuelve tokens JWT
 
         Returns:
-            Tuple de (access_token, refresh_token, expires_in)
+            Tuple de (access_token, refresh_token, expires_in, company_id)
         """
-        user = self.user_repository.get_by_email(email)
+        user = self.user_repository.get_by_email(email, company_id=None)
 
         if not user or not SecurityService.verify_password(password, user.hashed_password):
             raise HTTPException(
@@ -49,16 +49,25 @@ class AuthService(IAuthService):
             )
 
         access_token = SecurityService.create_token(
-            data={"sub": str(user.id), "email": user.email, "role": user.role},
+            data={
+                "sub": str(user.id),
+                "email": user.email,
+                "role": user.role,
+                "company_id": user.company_id
+            },
             token_type="access"
         )
 
         refresh_token = SecurityService.create_token(
-            data={"sub": str(user.id), "email": user.email},
+            data={
+                "sub": str(user.id),
+                "email": user.email,
+                "company_id": user.company_id
+            },
             token_type="refresh"
         )
 
-        return access_token, refresh_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        return access_token, refresh_token, settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60, user.company_id
 
     def refresh_access_token(self, refresh_token: str) -> Tuple[str, int]:
         """
@@ -76,7 +85,8 @@ class AuthService(IAuthService):
             )
 
         user_id = int(payload.get("sub"))
-        user = self.user_repository.get_by_id(user_id)
+        company_id = payload.get("company_id")
+        user = self.user_repository.get_by_id(user_id, company_id)
 
         if not user or not user.is_active:
             raise HTTPException(
@@ -85,7 +95,12 @@ class AuthService(IAuthService):
             )
 
         access_token = SecurityService.create_token(
-            data={"sub": str(user.id), "email": user.email, "role": user.role},
+            data={
+                "sub": str(user.id),
+                "email": user.email,
+                "role": user.role,
+                "company_id": user.company_id
+            },
             token_type="access"
         )
 
@@ -95,15 +110,15 @@ class IUserService(ABC):
     """Interface para servicio de usuarios"""
 
     @abstractmethod
-    def create_user(self, user_create: UserCreate) -> UserResponse:
+    def create_user(self, user_create: UserCreate, company_id: int) -> UserResponse:
         pass
 
     @abstractmethod
-    def get_user(self, user_id: int) -> UserResponse:
+    def get_user(self, user_id: int, company_id: int) -> UserResponse:
         pass
 
     @abstractmethod
-    def update_user(self, user_id: int, user_update: UserUpdate) -> UserResponse:
+    def update_user(self, user_id: int, company_id: int, user_update: UserUpdate) -> UserResponse:
         pass
 
 class UserService(IUserService):
@@ -112,18 +127,19 @@ class UserService(IUserService):
     def __init__(self, db: Session):
         self.user_repository = UserRepository(db)
 
-    def create_user(self, user_create: UserCreate) -> UserResponse:
-        """Crea un nuevo usuario"""
-        existing_user = self.user_repository.get_by_email(user_create.email)
+    def create_user(self, user_create: UserCreate, company_id: int) -> UserResponse:
+        """Crea un nuevo usuario en una empresa"""
+        existing_user = self.user_repository.get_by_email(user_create.email, company_id)
         if existing_user:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="El email ya está registrado",
+                detail="El email ya está registrado en esta empresa",
             )
 
         hashed_password = SecurityService.hash_password(user_create.password)
 
         user = User(
+            company_id=company_id,
             email=user_create.email,
             full_name=user_create.full_name,
             hashed_password=hashed_password,
@@ -133,9 +149,9 @@ class UserService(IUserService):
         created_user = self.user_repository.create(user)
         return UserResponse.from_orm(created_user)
 
-    def get_user(self, user_id: int) -> UserResponse:
-        """Obtiene un usuario por ID"""
-        user = self.user_repository.get_by_id(user_id)
+    def get_user(self, user_id: int, company_id: int) -> UserResponse:
+        """Obtiene un usuario de una empresa"""
+        user = self.user_repository.get_by_id(user_id, company_id)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -143,9 +159,9 @@ class UserService(IUserService):
             )
         return UserResponse.from_orm(user)
 
-    def update_user(self, user_id: int, user_update: UserUpdate) -> UserResponse:
-        """Actualiza un usuario"""
-        user = self.user_repository.get_by_id(user_id)
+    def update_user(self, user_id: int, company_id: int, user_update: UserUpdate) -> UserResponse:
+        """Actualiza un usuario de una empresa"""
+        user = self.user_repository.get_by_id(user_id, company_id)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -153,6 +169,6 @@ class UserService(IUserService):
             )
 
         update_data = user_update.dict(exclude_unset=True)
-        updated_user = self.user_repository.update(user_id, **update_data)
+        updated_user = self.user_repository.update(user_id, company_id, **update_data)
 
         return UserResponse.from_orm(updated_user)
