@@ -12,23 +12,23 @@ class IUserRepository(ABC):
         pass
 
     @abstractmethod
-    def get_by_id(self, user_id: int) -> Optional[User]:
+    def get_by_id(self, user_id: int, company_id: int) -> Optional[User]:
         pass
 
     @abstractmethod
-    def get_by_email(self, email: str) -> Optional[User]:
+    def get_by_email(self, email: str, company_id: Optional[int] = None) -> Optional[User]:
         pass
 
     @abstractmethod
-    def get_all(self, skip: int = 0, limit: int = 100) -> List[User]:
+    def get_all(self, company_id: int, skip: int = 0, limit: int = 100) -> List[User]:
         pass
 
     @abstractmethod
-    def update(self, user_id: int, **kwargs) -> Optional[User]:
+    def update(self, user_id: int, company_id: int, **kwargs) -> Optional[User]:
         pass
 
     @abstractmethod
-    def delete(self, user_id: int) -> bool:
+    def delete(self, user_id: int, company_id: int) -> bool:
         pass
 
 class UserRepository(IUserRepository):
@@ -44,21 +44,24 @@ class UserRepository(IUserRepository):
         self.db.refresh(user)
         return user
 
-    def get_by_id(self, user_id: int) -> Optional[User]:
-        """Obtiene usuario por ID"""
-        return self.db.query(User).filter(User.id == user_id).first()
+    def get_by_id(self, user_id: int, company_id: int) -> Optional[User]:
+        """Obtiene usuario por ID y empresa"""
+        return self.db.query(User).filter(User.id == user_id, User.company_id == company_id).first()
 
-    def get_by_email(self, email: str) -> Optional[User]:
-        """Obtiene usuario por email"""
-        return self.db.query(User).filter(User.email == email).first()
+    def get_by_email(self, email: str, company_id: Optional[int] = None) -> Optional[User]:
+        """Obtiene usuario por email (y opcionalmente por empresa)"""
+        query = self.db.query(User).filter(User.email == email)
+        if company_id is not None:
+            query = query.filter(User.company_id == company_id)
+        return query.first()
 
-    def get_all(self, skip: int = 0, limit: int = 100) -> List[User]:
-        """Obtiene todos los usuarios con paginación"""
-        return self.db.query(User).offset(skip).limit(limit).all()
+    def get_all(self, company_id: int, skip: int = 0, limit: int = 100) -> List[User]:
+        """Obtiene usuarios de una empresa con paginación"""
+        return self.db.query(User).filter(User.company_id == company_id).offset(skip).limit(limit).all()
 
-    def update(self, user_id: int, **kwargs) -> Optional[User]:
-        """Actualiza un usuario"""
-        user = self.get_by_id(user_id)
+    def update(self, user_id: int, company_id: int, **kwargs) -> Optional[User]:
+        """Actualiza un usuario de una empresa"""
+        user = self.get_by_id(user_id, company_id)
         if not user:
             return None
 
@@ -70,9 +73,9 @@ class UserRepository(IUserRepository):
         self.db.refresh(user)
         return user
 
-    def delete(self, user_id: int) -> bool:
-        """Elimina un usuario"""
-        user = self.get_by_id(user_id)
+    def delete(self, user_id: int, company_id: int) -> bool:
+        """Elimina un usuario de una empresa"""
+        user = self.get_by_id(user_id, company_id)
         if not user:
             return False
 

@@ -13,27 +13,27 @@ class IProductRepository(ABC):
         pass
 
     @abstractmethod
-    def get_by_id(self, product_id: int) -> Optional[Product]:
+    def get_by_id(self, product_id: int, company_id: int) -> Optional[Product]:
         pass
 
     @abstractmethod
-    def get_by_sku(self, sku: str) -> Optional[Product]:
+    def get_by_sku(self, sku: str, company_id: int) -> Optional[Product]:
         pass
 
     @abstractmethod
-    def get_all(self, skip: int = 0, limit: int = 100, category: Optional[str] = None, name: Optional[str] = None) -> Tuple[List[Product], int]:
+    def get_all(self, company_id: int, skip: int = 0, limit: int = 100, category: Optional[str] = None, name: Optional[str] = None) -> Tuple[List[Product], int]:
         pass
 
     @abstractmethod
-    def update(self, product_id: int, **kwargs) -> Optional[Product]:
+    def update(self, product_id: int, company_id: int, **kwargs) -> Optional[Product]:
         pass
 
     @abstractmethod
-    def delete(self, product_id: int) -> bool:
+    def delete(self, product_id: int, company_id: int) -> bool:
         pass
 
     @abstractmethod
-    def soft_delete(self, product_id: int) -> bool:
+    def soft_delete(self, product_id: int, company_id: int) -> bool:
         pass
 
 
@@ -50,16 +50,24 @@ class ProductRepository(IProductRepository):
         self.db.refresh(product)
         return product
 
-    def get_by_id(self, product_id: int) -> Optional[Product]:
-        """Obtiene producto por ID"""
-        return self.db.query(Product).filter(Product.id == product_id, Product.is_active == True).first()
+    def get_by_id(self, product_id: int, company_id: int) -> Optional[Product]:
+        """Obtiene producto por ID y empresa"""
+        return self.db.query(Product).filter(
+            Product.id == product_id,
+            Product.company_id == company_id,
+            Product.is_active == True
+        ).first()
 
-    def get_by_sku(self, sku: str) -> Optional[Product]:
-        """Obtiene producto por SKU"""
-        return self.db.query(Product).filter(Product.sku == sku).first()
+    def get_by_sku(self, sku: str, company_id: int) -> Optional[Product]:
+        """Obtiene producto por SKU y empresa"""
+        return self.db.query(Product).filter(
+            Product.sku == sku,
+            Product.company_id == company_id
+        ).first()
 
     def get_all(
         self,
+        company_id: int,
         skip: int = 0,
         limit: int = 100,
         search: Optional[str] = None,
@@ -71,8 +79,8 @@ class ProductRepository(IProductRepository):
         sort_by: str = "name",
         sort_order: str = "asc"
     ) -> Tuple[List[Product], int]:
-        """Obtiene todos los productos con filtros avanzados y paginación"""
-        query = self.db.query(Product)
+        """Obtiene productos de una empresa con filtros avanzados y paginación"""
+        query = self.db.query(Product).filter(Product.company_id == company_id)
 
         # Filtro de estado
         if is_active is not None:
@@ -127,9 +135,9 @@ class ProductRepository(IProductRepository):
 
         return products, total
 
-    def update(self, product_id: int, **kwargs) -> Optional[Product]:
-        """Actualiza un producto"""
-        product = self.get_by_id(product_id)
+    def update(self, product_id: int, company_id: int, **kwargs) -> Optional[Product]:
+        """Actualiza un producto de una empresa"""
+        product = self.get_by_id(product_id, company_id)
         if not product:
             return None
 
@@ -141,9 +149,9 @@ class ProductRepository(IProductRepository):
         self.db.refresh(product)
         return product
 
-    def delete(self, product_id: int) -> bool:
-        """Elimina un producto (hard delete)"""
-        product = self.get_by_id(product_id)
+    def delete(self, product_id: int, company_id: int) -> bool:
+        """Elimina un producto de una empresa (hard delete)"""
+        product = self.get_by_id(product_id, company_id)
         if not product:
             return False
 
@@ -151,9 +159,9 @@ class ProductRepository(IProductRepository):
         self.db.commit()
         return True
 
-    def soft_delete(self, product_id: int) -> bool:
-        """Elimina un producto (soft delete - marca como inactivo)"""
-        product = self.get_by_id(product_id)
+    def soft_delete(self, product_id: int, company_id: int) -> bool:
+        """Elimina un producto de una empresa (soft delete - marca como inactivo)"""
+        product = self.get_by_id(product_id, company_id)
         if not product:
             return False
 

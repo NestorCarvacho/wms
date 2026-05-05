@@ -10,7 +10,19 @@
       "PowerShell($env:MONDAY_API_TOKEN = \"eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1NDE4OTI0NywiYWFpIjoxMSwidWlkIjoxMDMxNDYxMTAsImlhZCI6IjIwMjYtMDUtMDVUMTY6MDE6MzUuMjg2WiIsInBlciI6Im1lOndyaXRlIiwiYWN0aWQiOjM0OTY5MzY2LCJyZ24iOiJ1c2UxIn0.ikHq6TdtvepzosIlO9ZuIlK0OuMvI_70SS0c9HD__fk\"; node \"C:\\\\Users\\\\nestor.carvacho\\\\Downloads\\\\wms\\\\test-token.js\")",
       "PowerShell($env:MONDAY_API_TOKEN = \"eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1NDE4OTI0NywiYWFpIjoxMSwidWlkIjoxMDMxNDYxMTAsImlhZCI6IjIwMjYtMDUtMDVUMTY6MDE6MzUuMjg2WiIsInBlciI6Im1lOndyaXRlIiwiYWN0aWQiOjM0OTY5MzY2LCJyZ24iOiJ1c2UxIn0.ikHq6TdtvepzosIlO9ZuIlK0OuMvI_70SS0c9HD__fk\"; node \"C:\\\\Users\\\\nestor.carvacho\\\\Downloads\\\\wms\\\\test-token.js\" 2>&1 | Select-Object -First 30)",
       "Bash(python -m pytest app/tests/test_products.py -v)",
-      "Bash(python -m pytest app/tests/test_products.py -v --tb=short)"
+      "Bash(python -m pytest app/tests/test_products.py -v --tb=short)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\nestor.carvacho\\\\Downloads\\\\wms\\\\wms\\\\app\" -Recurse -Filter \"*.py\")",
+      "Bash(Select-Object -First 10)",
+      "Bash(python -m pytest app/tests/test_auth.py::test_login_success -v)",
+      "Bash(pip install *)",
+      "Bash(python -m pytest app/tests/ -v --tb=short)",
+      "Bash(python -m pytest app/tests/test_products.py::test_create_product_success -v --tb=short)",
+      "Bash(python -m pytest app/tests/test_products.py::test_create_product_success -v --tb=long)",
+      "Bash(python -m pytest app/tests/ -v)",
+      "Bash(python -m pytest app/tests/test_products.py::test_get_products_filter_by_name -v --tb=short)",
+      "Bash(python -m pytest app/tests/test_products.py::test_get_products_filter_by_name -v)",
+      "Bash(python -m pytest app/tests/test_products.py::test_update_product_success -v --tb=short)",
+      "Bash(python -m pytest app/tests/ -v --tb=no)"
     ]
   }
 }

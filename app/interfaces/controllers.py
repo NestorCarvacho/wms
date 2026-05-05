@@ -35,7 +35,8 @@ user_router = APIRouter(prefix="/users", tags=["Users"])
                         "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                         "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                         "token_type": "bearer",
-                        "expires_in": 1800
+                        "expires_in": 1800,
+                        "company_id": 1
                     }
                 }
             }
@@ -56,14 +57,15 @@ async def login(
     Devuelve tokens JWT para acceder a recursos protegidos
     """
     auth_service = AuthService(db)
-    access_token, refresh_token, expires_in = auth_service.login(
+    access_token, refresh_token, expires_in, company_id = auth_service.login(
         credentials.email, credentials.password
     )
 
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
-        expires_in=expires_in
+        expires_in=expires_in,
+        company_id=company_id
     )
 
 @auth_router.post(
@@ -82,13 +84,19 @@ async def refresh_token(
 
     - **refresh_token**: Token de refresco previamente obtenido
     """
+    from app.core.security import SecurityService
+
     auth_service = AuthService(db)
     access_token, expires_in = auth_service.refresh_access_token(request.refresh_token)
+
+    payload = SecurityService.verify_token(request.refresh_token)
+    company_id = payload.get("company_id")
 
     return TokenResponse(
         access_token=access_token,
         refresh_token=request.refresh_token,
-        expires_in=expires_in
+        expires_in=expires_in,
+        company_id=company_id
     )
 
 # ============ User Endpoints ============
@@ -114,7 +122,8 @@ async def create_user(
     - **role**: Rol del usuario (admin, manager, operator, viewer)
     """
     user_service = UserService(db)
-    return user_service.create_user(user_create)
+    company_id = current_user.get("company_id")
+    return user_service.create_user(user_create, company_id)
 
 @user_router.get(
     "/me",
@@ -131,7 +140,8 @@ async def get_current_user_info(
     Obtiene información del usuario actualmente autenticado
     """
     user_service = UserService(db)
-    return user_service.get_user(int(current_user["user_id"]))
+    company_id = current_user.get("company_id")
+    return user_service.get_user(int(current_user["user_id"]), company_id)
 
 @user_router.get(
     "/{user_id}",
@@ -149,7 +159,8 @@ async def get_user(
     Obtiene un usuario específico por su ID
     """
     user_service = UserService(db)
-    return user_service.get_user(user_id)
+    company_id = current_user.get("company_id")
+    return user_service.get_user(user_id, company_id)
 
 @user_router.put(
     "/{user_id}",
@@ -168,7 +179,8 @@ async def update_user(
     Actualiza un usuario (solo el propietario o administradores)
     """
     user_service = UserService(db)
-    return user_service.update_user(user_id, user_update)
+    company_id = current_user.get("company_id")
+    return user_service.update_user(user_id, company_id, user_update)
 
 @user_router.delete(
     "/{user_id}",
@@ -185,8 +197,9 @@ async def delete_user(
     Elimina un usuario (solo administradores)
     """
     user_service = UserService(db)
+    company_id = current_user.get("company_id")
     user_repo = user_service.user_repository
-    if not user_repo.delete(user_id):
+    if not user_repo.delete(user_id, company_id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Usuario no encontrado"
