@@ -6,8 +6,8 @@ from sqlalchemy.orm import sessionmaker
 from app.main import app
 from app.infrastructure.database import Base, get_db
 from app.core.security import SecurityService
-from app.domain.models import User, RoleEnum
-from app.domain.products import Product
+from app.domain.models import User, Company, RoleEnum
+from app.domain.products.models import Product
 
 # Test database
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
@@ -36,19 +36,36 @@ def setup_and_teardown():
     Base.metadata.drop_all(bind=engine)
 
 @pytest.fixture
-def auth_headers():
+def test_company():
+    """Crea una empresa de prueba"""
+    db = TestingSessionLocal()
+    company = Company(
+        code="TEST-PROD",
+        name="Test Company Products",
+        is_active=True
+    )
+    db.add(company)
+    db.commit()
+    db.refresh(company)
+    company_id = company.id
+    db.close()
+    return company_id
+
+@pytest.fixture
+def auth_headers(test_company):
     """Crea un usuario de prueba y retorna headers con token"""
     db = TestingSessionLocal()
 
     user_data = {
         "email": "admin@test.com",
         "full_name": "Admin User",
-        "password": "pass123",
+        "password": "admin123",
         "role": RoleEnum.ADMIN,
     }
 
     hashed_password = SecurityService.hash_password(user_data["password"])
     user = User(
+        company_id=test_company,
         email=user_data["email"],
         full_name=user_data["full_name"],
         hashed_password=hashed_password,
@@ -218,11 +235,12 @@ def test_get_products_filter_by_name(auth_headers, product_data):
 
     product_data["sku"] = "PROD-002"
     product_data["name"] = "Mouse Logitech"
+    product_data["description"] = "Mouse inalámbrico"
     client.post("/api/v1/productos", json=product_data, headers=auth_headers)
 
     # Buscar por nombre
     response = client.get(
-        "/api/v1/productos?name=Laptop",
+        "/api/v1/productos?search=Laptop",
         headers=auth_headers
     )
 

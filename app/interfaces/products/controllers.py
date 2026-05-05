@@ -33,11 +33,12 @@ async def create_product(
     - **stock**: Stock inicial (mínimo 0)
 
     Validaciones:
-    - El SKU debe ser único
+    - El SKU debe ser único por empresa
     - Todos los campos requeridos deben estar presentes
     """
     product_service = ProductService(db)
-    return product_service.create_product(product_create)
+    company_id = current_user.get("company_id")
+    return product_service.create_product(product_create, company_id)
 
 
 @product_router.get(
@@ -138,7 +139,8 @@ async def get_products(
     )
 
     product_service = ProductService(db)
-    return product_service.get_all_products(filters)
+    company_id = current_user.get("company_id")
+    return product_service.get_all_products(company_id, filters)
 
 
 @product_router.get(
@@ -157,7 +159,8 @@ async def get_product(
     Obtiene un producto específico por su ID
     """
     product_service = ProductService(db)
-    return product_service.get_product(product_id)
+    company_id = current_user.get("company_id")
+    return product_service.get_product(product_id, company_id)
 
 
 @product_router.put(
@@ -177,10 +180,11 @@ async def update_product(
     Actualiza un producto existente
 
     Solo se actualizan los campos que se proporcionen (actualización parcial).
-    El SKU no puede duplicarse.
+    El SKU no puede duplicarse en la empresa.
     """
     product_service = ProductService(db)
-    return product_service.update_product(product_id, product_update)
+    company_id = current_user.get("company_id")
+    return product_service.update_product(product_id, company_id, product_update)
 
 
 @product_router.delete(
@@ -206,7 +210,8 @@ async def delete_product(
     - No se pueden eliminar productos con inventario vinculado
     """
     product_service = ProductService(db)
-    if not product_service.delete_product(product_id, soft=soft):
+    company_id = current_user.get("company_id")
+    if not product_service.delete_product(product_id, company_id, soft=soft):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Producto no encontrado"

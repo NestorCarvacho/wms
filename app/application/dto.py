@@ -31,6 +31,7 @@ class TokenResponse(BaseModel):
     refresh_token: str = Field(..., description="Token para refrescar acceso")
     token_type: str = "bearer"
     expires_in: int = Field(..., description="Segundos hasta expiración")
+    company_id: int = Field(..., description="ID de la empresa del usuario")
 
     class Config:
         json_schema_extra = {
@@ -38,7 +39,8 @@ class TokenResponse(BaseModel):
                 "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                 "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                 "token_type": "bearer",
-                "expires_in": 1800
+                "expires_in": 1800,
+                "company_id": 1
             }
         }
 
@@ -74,6 +76,7 @@ class UserUpdate(BaseModel):
 class UserResponse(BaseModel):
     """DTO de respuesta para usuario"""
     id: int = Field(..., description="ID del usuario")
+    company_id: int = Field(..., description="ID de la empresa")
     email: str = Field(..., description="Email del usuario")
     full_name: str = Field(..., description="Nombre completo")
     role: str = Field(..., description="Rol del usuario")
@@ -86,6 +89,7 @@ class UserResponse(BaseModel):
         json_schema_extra = {
             "example": {
                 "id": 1,
+                "company_id": 1,
                 "email": "admin@wms.com",
                 "full_name": "Administrador",
                 "role": "admin",
