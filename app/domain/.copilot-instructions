@@ -1,0 +1,65 @@
+# Domain Layer - Copilot Instructions
+
+## Propósito
+La capa de dominio contiene los modelos de negocio principales y las entidades que representan los conceptos centrales del sistema WMS.
+
+## Responsabilidades
+- Definir modelos SQLAlchemy que mapean a la base de datos
+- Representar entidades de negocio (User, Product, Warehouse, etc.)
+- Incluir enums para estados y tipos (RoleEnum, StatusEnum)
+- No contiene lógica de negocio compleja
+
+## Patrones y Convenciones
+
+### Modelos
+```python
+class EntityName(Base):
+    __tablename__ = "table_name"
+
+    id = Column(Integer, primary_key=True)
+    # Siempre incluir timestamps
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, onupdate=func.now())
+```
+
+### Enums
+```python
+class StatusEnum(str, enum.Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+```
+
+## Principios SOLID Aplicados
+- **Single Responsibility**: Cada modelo tiene una única tabla
+- **Open/Closed**: Fácil de extender con nuevos campos
+- **Liskov Substitution**: Todos heredan de Base
+- **Interface Segregation**: Modelos especializados
+- **Dependency Inversion**: No dependen de capas superiores
+
+## Type Hints
+Todos los campos deben tener type hints para SQLAlchemy:
+```python
+id: int = Column(...)
+name: str = Column(...)
+```
+
+## Guía de Campos
+- Siempre usar `nullable=False` para campos obligatorios
+- Usar `index=True` para campos frecuentemente buscados
+- Usar `unique=True` para campos únicos (email, código)
+- Usar `server_default` para timestamps automáticos
+
+## No Hacer
+- ❌ Incluir lógica de negocio compleja
+- ❌ Relaciones complejas (mantener simples)
+- ❌ Métodos que llamen a repositorios
+- ❌ Validaciones complejas (eso es en DTOs)
+
+## Próximos Modelos a Agregar
+Según requerimientos:
+- Product (R.02, R.05, R.06)
+- Warehouse (R.27)
+- StorageZone (R.28)
+- Gondola (R.01)
+- Order (R.22)
+- Inventory (R.30)

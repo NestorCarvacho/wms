@@ -1,0 +1,128 @@
+# Core Layer - Copilot Instructions
+
+## Propósito
+La capa core proporciona servicios transversales utilizados por todas las capas.
+
+## Estructura
+- **config.py**: Configuración centralizada
+- **security.py**: Autenticación, JWT, hashing
+- **exceptions.py**: (opcional) Excepciones customizadas
+
+## Responsabilidades
+- Gestión de configuración centralizada
+- Servicios de seguridad (JWT, hashing)
+- Excepciones customizadas
+- Utilidades globales
+
+## Config Pattern
+
+### Settings
+```python
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    APP_NAME: str
+    SECRET_KEY: str
+    DATABASE_URL: str
+
+    class Config:
+        env_file = ".env"
+
+settings = Settings()
+```
+
+### Uso
+```python
+from app.core.config import settings
+
+database_url = settings.DATABASE_URL
+secret_key = settings.SECRET_KEY
+```
+
+## Security Pattern
+
+### Password Hashing
+```python
+class SecurityService:
+    @staticmethod
+    def hash_password(password: str) -> str:
+        return pwd_context.hash(password)
+
+    @staticmethod
+    def verify_password(plain: str, hashed: str) -> bool:
+        return pwd_context.verify(plain, hashed)
+```
+
+### JWT Tokens
+```python
+@staticmethod
+def create_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+@staticmethod
+def verify_token(token: str) -> dict:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError:
+        raise HTTPException(status_code=401)
+```
+
+### Dependency Injection
+```python
+async def get_current_user(credentials: HTTPAuthCredentials = Depends(security)) -> dict:
+    token = credentials.credentials
+    payload = SecurityService.verify_token(token)
+    return {"user_id": payload.get("sub")}
+```
+
+## Variables de Entorno (.env)
+```
+APP_NAME=WMS API
+SECRET_KEY=your-secret-key-here
+DATABASE_URL=sqlite:///./wms.db
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+REFRESH_TOKEN_EXPIRE_DAYS=7
+```
+
+## Principios SOLID Aplicados
+- **Single Responsibility**: Servicios especializados
+- **Open/Closed**: Fácil agregar nuevos servicios
+- **Liskov Substitution**: Implementaciones intercambiables
+- **Interface Segregation**: Servicios pequeños
+- **Dependency Inversion**: Inyección de dependencias
+
+## Excepciones Customizadas (opcional)
+```python
+class WMSException(Exception):
+    """Excepción base del sistema"""
+    pass
+
+class InvalidCredentialsException(WMSException):
+    """Credenciales inválidas"""
+    pass
+
+class UserNotActiveException(WMSException):
+    """Usuario inactivo"""
+    pass
+```
+
+## No Hacer
+- ❌ Secrets hardcodeados
+- ❌ Configuración en múltiples lugares
+- ❌ Métodos gigantes
+- ❌ Dependencias circulares
+- ❌ State global (services deben ser stateless)
+
+## Próximos Servicios Core
+- LoggerService (logging centralizado)
+- EmailService (envío de correos)
+- CacheService (caching distribuido)
+- MetricsService (monitoreo y métricas)

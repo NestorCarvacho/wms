@@ -43,14 +43,23 @@ app/
 pip install -r requirements.txt
 ```
 
-### 2. Configurar variables de entorno
+### 2. Configurar base de datos
+
+Ver `documentos/DATABASE_SETUP.md` para instrucciones detalladas:
 
 ```bash
-cp .env.example .env
-# Editar .env con valores propios
+mysql -u root -p < database/init_mysql_v2.sql
 ```
 
-### 3. Ejecutar servidor
+### 3. Configurar variables de entorno
+
+```bash
+# Crear archivo .env en la raíz
+echo "DATABASE_URL=mysql+pymysql://root:password@localhost:3306/wms" > .env
+echo "SECRET_KEY=tu-clave-secreta" >> .env
+```
+
+### 4. Ejecutar servidor
 
 ```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
@@ -58,14 +67,31 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 El servidor estará disponible en: `http://localhost:8000`
 
-## 📚 Documentación API
+## 📚 Documentación
 
-### Swagger UI (Interactivo)
+### Documentación del Proyecto
+
+Toda la documentación se encuentra en la carpeta `documentos/`:
+
+| Archivo | Propósito |
+|---------|-----------|
+| `documentos/QUICK_START.md` | ⚡ Inicio rápido (5 minutos) |
+| `documentos/DATABASE_SETUP.md` | 🗄️ Instalación y configuración de BD |
+| `documentos/DATABASE_SCHEMA.md` | 📊 Descripción de todas las tablas |
+| `documentos/README_DATABASE.md` | 📈 Estado y características de la BD |
+| `documentos/API_SEARCH_FILTERS.md` | 🔍 Endpoints de búsqueda y filtros |
+| `documentos/ARCHITECTURE.md` | 🏗️ Arquitectura del proyecto |
+| `documentos/DEVELOPMENT.md` | 💻 Guía de desarrollo |
+| `documentos/REQUIREMENTS.md` | 📋 Requerimientos implementados |
+
+### Documentación API (Interactiva)
+
+**Swagger UI:**
 ```
 http://localhost:8000/api/v1/docs
 ```
 
-### ReDoc
+**ReDoc:**
 ```
 http://localhost:8000/api/v1/redoc
 ```
@@ -220,9 +246,26 @@ sqlite3 wms.db ".tables"
 sqlite3 wms.db ".schema users"
 ```
 
-## 📞 Contacto & Soporte
+## 📞 Dónde Encontrar Información
 
-Para preguntas o problemas:
-1. Revisar `.copilot-instructions` de la capa relevante
-2. Revisar tests en `app/tests/`
-3. Documentación Swagger en `/api/v1/docs`
+### Para empezar rápido
+→ Lee `documentos/QUICK_START.md`
+
+### Para entender la base de datos
+→ Lee `documentos/DATABASE_SCHEMA.md`
+
+### Para problemas de conexión a BD
+→ Lee `documentos/DATABASE_SETUP.md`
+
+### Para entender la arquitectura
+→ Lee `documentos/ARCHITECTURE.md`
+
+### Para desarrollo
+→ Lee `documentos/DEVELOPMENT.md`
+
+### Para endpoints específicos
+→ Consulta Swagger en `http://localhost:8000/api/v1/docs`
+
+## 📄 Licencia
+
+Interno - Visma

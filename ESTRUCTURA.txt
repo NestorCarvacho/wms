@@ -1,0 +1,71 @@
+📁 WMS - ESTRUCTURA DEL PROYECTO
+═════════════════════════════════════════════════════════════
+
+wms/
+├── 📁 app/                          # Aplicación FastAPI
+│   ├── 📁 domain/                   # Capa de Dominio (Modelos)
+│   │   ├── 📁 products/             # Módulo de Productos
+│   │   ├── 📁 users/
+│   │   └── models.py
+│   │
+│   ├── 📁 application/              # Capa de Aplicación (Servicios)
+│   │   ├── 📁 products/             # Servicios de Productos
+│   │   ├── 📁 users/
+│   │   └── (DTOs y servicios)
+│   │
+│   ├── 📁 infrastructure/           # Capa de Infraestructura (Datos)
+│   │   ├── 📁 products/             # Repositorios de Productos
+│   │   ├── 📁 users/
+│   │   ├── database.py              # Configuración BD
+│   │   └── (Repositorios)
+│   │
+│   ├── 📁 interfaces/               # Capa de Interfaz (Endpoints)
+│   │   ├── 📁 products/             # Controllers de Productos
+│   │   ├── 📁 users/
+│   │   └── (Routers/Controllers)
+│   │
+│   ├── 📁 core/                     # Configuración y Seguridad
+│   │   ├── security.py              # JWT, autenticación
+│   │   └── config.py
+│   │
+│   ├── 📁 tests/                    # Tests unitarios
+│   │   └── test_*.py
+│   │
+│   └── main.py                      # Aplicación principal
+│
+├── 📁 database/                     # Scripts SQL
+│   ├── init_mysql.sql               # Schema original
+│   └── init_mysql_v2.sql            # Schema actualizado ✅
+│
+├── 📁 documentos/                   # 📚 DOCUMENTACIÓN (NUEVA)
+│   ├── QUICK_START.md               # ⚡ Inicio rápido (5 min)
+│   ├── DATABASE_SETUP.md            # 🗄️ Instalación BD
+│   ├── DATABASE_SCHEMA.md           # 📊 Tablas y relaciones
+│   ├── README_DATABASE.md           # 📈 Estado BD
+│   ├── API_SEARCH_FILTERS.md        # 🔍 Endpoints búsqueda
+│   ├── ARCHITECTURE.md              # 🏗️ Arquitectura
+│   ├── DEVELOPMENT.md               # 💻 Desarrollo
+│   └── REQUIREMENTS.md              # 📋 Requerimientos
+│
+├── 📄 README.md                     # 🎯 Inicio principal
+├── 📄 requirements.txt              # 📦 Dependencias
+├── 📄 .env                          # ⚙️ Configuración (gitignore)
+└── 📄 .env.example                  # ⚙️ Ejemplo de config
+
+═════════════════════════════════════════════════════════════
+
+🔑 PUNTOS CLAVE:
+
+✅ Base de datos: 27 tablas normalizadas
+   → Ver: documentos/DATABASE_SCHEMA.md
+
+✅ Arquitectura modular por feature
+   → Ver: documentos/ARCHITECTURE.md
+
+✅ Tests de ejemplo incluidos
+   → Ver: app/tests/
+
+✅ API documentada automáticamente
+   → Ver: http://localhost:8000/api/v1/docs
+
+═════════════════════════════════════════════════════════════

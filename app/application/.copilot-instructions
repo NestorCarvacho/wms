@@ -1,0 +1,94 @@
+# Application Layer - Copilot Instructions
+
+## Propósito
+La capa de aplicación contiene la lógica de negocio principal del sistema, organizada en servicios y DTOs.
+
+## Estructura
+- **dto.py**: Validación y transfer de datos (Pydantic models)
+- **services.py**: Lógica de negocio (use cases, operaciones)
+
+## Responsabilidades
+
+### DTOs (Data Transfer Objects)
+- Validar inputs del cliente
+- Transformar datos entre capas
+- Documentar esquemas en Swagger
+- Utilizar Pydantic para validaciones automáticas
+
+### Servicios
+- Implementar reglas de negocio
+- Orquestar repositorios
+- Lanzar excepciones HTTPException para errores
+- Ser stateless
+
+## Patrones
+
+### DTO Creation
+```python
+class EntityCreate(BaseModel):
+    field: str = Field(..., description="Field description")
+
+    class Config:
+        json_schema_extra = {
+            "example": {"field": "value"}
+        }
+```
+
+### Service Creation
+```python
+class EntityService:
+    def __init__(self, db: Session):
+        self.repository = EntityRepository(db)
+
+    def create_entity(self, entity_create: EntityCreate) -> EntityResponse:
+        # Validaciones de negocio
+        # Crear en repositorio
+        # Retornar DTO de respuesta
+        pass
+```
+
+## Principios SOLID Aplicados
+- **Single Responsibility**: Servicios especializados (AuthService, UserService, etc.)
+- **Open/Closed**: Interfaces IAuthService, IUserService
+- **Liskov Substitution**: Implementaciones intercambiables
+- **Interface Segregation**: Interfaces pequeñas y específicas
+- **Dependency Inversion**: Inyección de repositorios
+
+## Validaciones
+- Inputs con Pydantic en DTOs
+- Reglas de negocio en servicios
+- Lanzar HTTPException con status codes apropiados
+
+## Convenciones de Servicios
+
+### Response DTOs
+```python
+class EntityResponse(BaseModel):
+    id: int
+    # ... otros campos
+
+    class Config:
+        from_attributes = True  # Para mapear modelos ORM
+```
+
+### Errores Comunes
+```python
+HTTPException(status_code=400, detail="Message")
+HTTPException(status_code=401, detail="Unauthorized")
+HTTPException(status_code=404, detail="Not found")
+```
+
+## No Hacer
+- ❌ Queries directo a la BD (usar repositorios)
+- ❌ Retornar modelos ORM directos (usar DTOs)
+- ❌ Lógica de autenticación mixta con negocio
+- ❌ DTOs sin validaciones
+- ❌ Métodos gigantes (refactorizar en helper methods)
+
+## Próximos Servicios Requeridos
+Según requerimientos:
+- ProductService (R.02, R.05, R.06)
+- WarehouseService (R.27)
+- InventoryService (R.07, R.30)
+- OrderService (R.22)
+- ReportService (R.14)

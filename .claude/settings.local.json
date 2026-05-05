@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\nestor.carvacho\\\\Downloads\\\\wms\" -Recurse -Depth 2)",
+      "Bash(Select-Object FullName)",
+      "Skill(update-config)",
+      "Bash(node get-monday-board.js)",
+      "PowerShell($env:MONDAY_API_TOKEN = \"eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1NDE4NzkyMCwiYWFpIjoxMSwidWlkIjoxMDMxNDYxMTAsImlhZCI6IjIwMjYtMDUtMDVUMTU6NTk6MzYuODY2WiIsInBlciI6Im1lOndyaXRlIiwiYWN0aWQiOjM0OTY5MzY2LCJyZ24iOiJ1c2UxIn0.e77PEyOAZycAMJLOpGWSfnGG61stk6nYDLRn8WC5xso\"; node \"C:\\\\Users\\\\nestor.carvacho\\\\Downloads\\\\wms\\\\get-monday-board.js\")",
+      "PowerShell($env:MONDAY_API_TOKEN = \"eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1NDE4NzkyMCwiYWFpIjoxMSwidWlkIjoxMDMxNDYxMTAsImlhZCI6IjIwMjYtMDUtMDVUMTU6NTk6MzYuODY2WiIsInBlciI6Im1lOndyaXRlIiwiYWN0aWQiOjM0OTY5MzY2LCJyZ24iOiJ1c2UxIn0.e77PEyOAZycAMJLOpGWSfnGG61stk6nYDLRn8WC5xso\"; node \"C:\\\\Users\\\\nestor.carvacho\\\\Downloads\\\\wms\\\\test-token.js\")",
+      "PowerShell($env:MONDAY_API_TOKEN = \"eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1NDE4OTI0NywiYWFpIjoxMSwidWlkIjoxMDMxNDYxMTAsImlhZCI6IjIwMjYtMDUtMDVUMTY6MDE6MzUuMjg2WiIsInBlciI6Im1lOndyaXRlIiwiYWN0aWQiOjM0OTY5MzY2LCJyZ24iOiJ1c2UxIn0.ikHq6TdtvepzosIlO9ZuIlK0OuMvI_70SS0c9HD__fk\"; node \"C:\\\\Users\\\\nestor.carvacho\\\\Downloads\\\\wms\\\\test-token.js\")",
+      "PowerShell($env:MONDAY_API_TOKEN = \"eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1NDE4OTI0NywiYWFpIjoxMSwidWlkIjoxMDMxNDYxMTAsImlhZCI6IjIwMjYtMDUtMDVUMTY6MDE6MzUuMjg2WiIsInBlciI6Im1lOndyaXRlIiwiYWN0aWQiOjM0OTY5MzY2LCJyZ24iOiJ1c2UxIn0.ikHq6TdtvepzosIlO9ZuIlK0OuMvI_70SS0c9HD__fk\"; node \"C:\\\\Users\\\\nestor.carvacho\\\\Downloads\\\\wms\\\\test-token.js\" 2>&1 | Select-Object -First 30)",
+      "Bash(python -m pytest app/tests/test_products.py -v)",
+      "Bash(python -m pytest app/tests/test_products.py -v --tb=short)"
+    ]
+  }
+}

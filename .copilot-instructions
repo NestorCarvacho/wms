@@ -1,0 +1,87 @@
+# WMS API - Copilot Instructions
+
+## Visión General
+Este proyecto implementa una API REST para un Sistema de Gestión de Almacén (WMS) utilizando FastAPI con arquitectura en capas y principios SOLID.
+
+## Arquitectura General
+
+### Estructura de Capas
+- **Domain Layer**: Modelos de dominio y entidades
+- **Application Layer**: Servicios de negocio y DTOs
+- **Infrastructure Layer**: Repositorios y acceso a datos
+- **Interface Layer**: Controllers/Endpoints
+- **Core Layer**: Configuración, seguridad y utilidades
+
+### Principios SOLID Aplicados
+- **S**ingle Responsibility: Cada clase tiene una única responsabilidad
+- **O**pen/Closed: Las clases están abiertas para extensión, cerradas para modificación
+- **L**iskov Substitution: Interfaces bien definidas para repositorios y servicios
+- **I**nterface Segregation: Servicios especializados por dominio
+- **D**ependency Inversion: Inyección de dependencias en FastAPI
+
+## Patrones de Desarrollo
+
+### Autenticación JWT
+- Login devuelve access_token y refresh_token
+- Tokens firmados con HS256
+- Validación en cada endpoint protegido
+
+### Respuestas Estándar
+```json
+{
+  "success": true,
+  "data": { ... },
+  "message": "Operación exitosa",
+  "status_code": 200
+}
+```
+
+### Manejo de Errores
+- Excepciones customizadas para cada dominio
+- Validación automática con Pydantic
+- Mensajes de error descriptivos
+
+## Convenciones de Código
+- Nombres de variables en snake_case
+- Nombres de clases en PascalCase
+- Type hints obligatorios
+- Docstrings en métodos públicos
+
+## Seguridad
+- Hashing de contraseñas con bcrypt
+- Tokens JWT con expiración
+- Variables de entorno para secretos
+- Validación de inputs en DTOs
+
+## Testing
+- Tests unitarios para servicios
+- Tests de integración para endpoints
+- Fixtures de pytest para mocking
+
+## Documentación
+- Swagger automático en /docs
+- Descripciones detalladas en endpoints
+- Ejemplos de requests y responses
+
+## Comandos Comunes
+```bash
+# Instalar dependencias
+pip install -r requirements.txt
+
+# Ejecutar servidor
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Ejecutar tests
+pytest app/tests -v
+
+# Documentación interactiva
+# Ir a http://localhost:8000/docs
+```
+
+## Próximos Pasos
+1. Completar modelos de dominio según requerimientos
+2. Implementar servicios de negocio
+3. Crear repositorios para persistencia
+4. Agregar más endpoints según casos de uso
+5. Implementar validaciones de negocio
+6. Agregar logging y monitoreo

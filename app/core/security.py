@@ -3,9 +3,15 @@ from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthCredentials
+from fastapi.security import HTTPBearer
+from starlette.authentication import AuthCredentials, AuthenticationBackend, SimpleUser
 
 from app.core.config import settings
+
+class HTTPAuthCredentials:
+    def __init__(self, scheme: str, credentials: str):
+        self.scheme = scheme
+        self.credentials = credentials
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer()

@@ -5,6 +5,7 @@ from fastapi.openapi.utils import get_openapi
 from app.core.config import settings
 from app.infrastructure.database import init_db
 from app.interfaces.controllers import auth_router, user_router
+from app.interfaces.products import product_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -33,6 +34,7 @@ async def startup():
 # Routers
 app.include_router(auth_router, prefix=settings.API_PREFIX)
 app.include_router(user_router, prefix=settings.API_PREFIX)
+app.include_router(product_router, prefix=settings.API_PREFIX)
 
 # Health Check
 @app.get(

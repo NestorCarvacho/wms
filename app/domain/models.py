@@ -5,12 +5,14 @@ import enum
 
 from app.infrastructure.database import Base
 
+
 class RoleEnum(str, enum.Enum):
     """Roles disponibles en el sistema"""
     ADMIN = "admin"
     MANAGER = "manager"
     OPERATOR = "operator"
     VIEWER = "viewer"
+
 
 class User(Base):
     """Modelo de Usuario"""

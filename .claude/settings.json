@@ -1,0 +1,6 @@
+{
+  "env": {
+    "MONDAY_API_TOKEN": "eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjY1NDE4NzkyMCwiYWFpIjoxMSwidWlkIjoxMDMxNDYxMTAsImlhZCI6IjIwMjYtMDUtMDVUMTU6NTk6MzYuODY2WiIsInBlciI6Im1lOndyaXRlIiwiYWN0aWQiOjM0OTY5MzY2LCJyZ24iOiJ1c2UxIn0.e77PEyOAZycAMJLOpGWSfnGG61stk6nYDLRn8WC5xso"
+  },
+  "enableAllProjectMcpServers": false
+}

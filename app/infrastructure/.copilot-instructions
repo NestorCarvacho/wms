@@ -1,0 +1,128 @@
+# Infrastructure Layer - Copilot Instructions
+
+## Propósito
+La capa de infraestructura gestiona la persistencia de datos y la comunicación con sistemas externos.
+
+## Estructura
+- **database.py**: Configuración de BD (engine, session, base)
+- **repositories.py**: Patrones Repository para acceso a datos
+
+## Responsabilidades
+- Abstraer acceso a la base de datos
+- Implementar operaciones CRUD
+- Gestionar transacciones
+- No contiene lógica de negocio
+
+## Repository Pattern
+
+### Interfaz
+```python
+class IEntityRepository(ABC):
+    @abstractmethod
+    def create(self, entity: Entity) -> Entity:
+        pass
+
+    @abstractmethod
+    def get_by_id(self, id: int) -> Optional[Entity]:
+        pass
+
+    @abstractmethod
+    def get_all(self, skip: int = 0, limit: int = 100) -> List[Entity]:
+        pass
+
+    @abstractmethod
+    def update(self, id: int, **kwargs) -> Optional[Entity]:
+        pass
+
+    @abstractmethod
+    def delete(self, id: int) -> bool:
+        pass
+```
+
+### Implementación
+```python
+class EntityRepository(IEntityRepository):
+    def __init__(self, db: Session):
+        self.db = db
+
+    def create(self, entity: Entity) -> Entity:
+        self.db.add(entity)
+        self.db.commit()
+        self.db.refresh(entity)
+        return entity
+```
+
+## Principios SOLID Aplicados
+- **Single Responsibility**: Cada repo maneja una entidad
+- **Open/Closed**: Fácil extender con nuevas operaciones
+- **Liskov Substitution**: Todas heredan de interfaz
+- **Interface Segregation**: Interfaces específicas
+- **Dependency Inversion**: Services inyectan repos
+
+## Operaciones CRUD
+
+### Create
+```python
+def create(self, entity: Entity) -> Entity:
+    self.db.add(entity)
+    self.db.commit()
+    self.db.refresh(entity)
+    return entity
+```
+
+### Read
+```python
+def get_by_id(self, id: int) -> Optional[Entity]:
+    return self.db.query(Entity).filter(Entity.id == id).first()
+```
+
+### Update
+```python
+def update(self, id: int, **kwargs) -> Optional[Entity]:
+    entity = self.get_by_id(id)
+    if not entity:
+        return None
+    for key, value in kwargs.items():
+        if value is not None and hasattr(entity, key):
+            setattr(entity, key, value)
+    self.db.commit()
+    self.db.refresh(entity)
+    return entity
+```
+
+### Delete
+```python
+def delete(self, id: int) -> bool:
+    entity = self.get_by_id(id)
+    if not entity:
+        return False
+    self.db.delete(entity)
+    self.db.commit()
+    return True
+```
+
+## No Hacer
+- ❌ Lógica de negocio en repositorios
+- ❌ Queries sin filtros seguros
+- ❌ Transacciones manuales (confiar en sesión)
+- ❌ Retornar None sin verificar (manejar errores en services)
+- ❌ Metodos que hacen N queries (N+1 problem)
+
+## Queries Complejas
+Para queries complejas, crear métodos específicos:
+```python
+def get_active_by_date_range(self, start: date, end: date) -> List[Entity]:
+    return self.db.query(Entity).filter(
+        Entity.is_active == True,
+        Entity.created_at >= start,
+        Entity.created_at <= end
+    ).all()
+```
+
+## Próximos Repositorios Requeridos
+Según requerimientos:
+- ProductRepository (R.02, R.05, R.06)
+- WarehouseRepository (R.27)
+- GondolaRepository (R.01)
+- InventoryRepository (R.30)
+- OrderRepository (R.22)
