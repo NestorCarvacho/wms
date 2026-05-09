@@ -4,6 +4,58 @@
 -- AUTOINCREMENT: Todos los IDs se autoincrementan automáticamente
 -- ============================================
 
+-- ============================================
+-- DROP TABLES / VIEWS IF EXISTS
+-- WMS API - Cleanup Script
+-- ============================================
+
+SET FOREIGN_KEY_CHECKS=0;
+
+-- ============================================
+-- DROP VIEWS
+-- ============================================
+
+DROP VIEW IF EXISTS v_product_suppliers;
+DROP VIEW IF EXISTS v_stock_by_location;
+DROP VIEW IF EXISTS v_pending_sales_orders;
+DROP VIEW IF EXISTS v_low_stock;
+DROP VIEW IF EXISTS v_inventory_summary;
+
+-- ============================================
+-- DROP TABLES (orden inverso por FK)
+-- ============================================
+
+DROP TABLE IF EXISTS audit_log;
+DROP TABLE IF EXISTS return_order_details;
+DROP TABLE IF EXISTS returns_orders;
+DROP TABLE IF EXISTS shipping_labels;
+DROP TABLE IF EXISTS packing_tasks;
+DROP TABLE IF EXISTS warehouse_zones;
+DROP TABLE IF EXISTS product_suppliers;
+DROP TABLE IF EXISTS warehouse_transfer_details;
+DROP TABLE IF EXISTS warehouse_transfers;
+DROP TABLE IF EXISTS product_batches;
+DROP TABLE IF EXISTS stock_count_details;
+DROP TABLE IF EXISTS stock_counts;
+DROP TABLE IF EXISTS picking_tasks;
+DROP TABLE IF EXISTS stock_movements;
+DROP TABLE IF EXISTS sales_order_details;
+DROP TABLE IF EXISTS sales_orders;
+DROP TABLE IF EXISTS customers;
+DROP TABLE IF EXISTS purchase_order_details;
+DROP TABLE IF EXISTS purchase_orders;
+DROP TABLE IF EXISTS suppliers;
+DROP TABLE IF EXISTS inventory;
+DROP TABLE IF EXISTS shelf_products;
+DROP TABLE IF EXISTS shelves;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS product_categories;
+DROP TABLE IF EXISTS warehouses;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS companies;
+
+SET FOREIGN_KEY_CHECKS=1;
+
 -- Configuración de sesión
 SET FOREIGN_KEY_CHECKS=0;
 
@@ -137,7 +189,7 @@ CREATE TABLE shelves (
     code VARCHAR(50) NOT NULL COMMENT 'Código de la góndola',
     name VARCHAR(255) NOT NULL COMMENT 'Nombre de la góndola',
     shelf_type ENUM('rack', 'gondola', 'bin', 'pallet') DEFAULT 'rack' NOT NULL COMMENT 'Tipo de almacenamiento',
-    row_number INT COMMENT 'Número de fila',
+    `row_number` INT COMMENT 'Número de fila',
     column_number INT COMMENT 'Número de columna',
     level_number INT COMMENT 'Número de nivel',
     capacity_units INT COMMENT 'Capacidad en unidades',
@@ -198,8 +250,8 @@ CREATE TABLE inventory (
 CREATE TABLE suppliers (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID único del proveedor',
     company_id BIGINT NOT NULL COMMENT 'ID de la empresa a la que pertenece',
-    code VARCHAR(50) NOT NULL COMMENT 'Código del proveedor',
-    name VARCHAR(255) NOT NULL COMMENT 'Nombre del proveedor',
+    `code` VARCHAR(50) NOT NULL COMMENT 'Código del proveedor',
+    `name` VARCHAR(255) NOT NULL COMMENT 'Nombre del proveedor',
     contact_person VARCHAR(255) COMMENT 'Persona de contacto',
     email VARCHAR(255) COMMENT 'Email de contacto',
     phone VARCHAR(20) COMMENT 'Teléfono de contacto',
@@ -231,7 +283,7 @@ CREATE TABLE purchase_orders (
     expected_delivery_date DATE COMMENT 'Fecha esperada de entrega',
     actual_delivery_date DATE COMMENT 'Fecha real de entrega',
     notes TEXT COMMENT 'Notas adicionales',
-    created_by BIGINT NOT NULL COMMENT 'ID del usuario que creó la orden',
+    created_by BIGINT COMMENT 'ID del usuario que creó la orden',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT 'Fecha de creación',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL COMMENT 'Última actualización',
     FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE RESTRICT,
@@ -268,8 +320,8 @@ CREATE TABLE purchase_order_details (
 CREATE TABLE customers (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID único del cliente',
     company_id BIGINT NOT NULL COMMENT 'ID de la empresa a la que pertenece',
-    code VARCHAR(50) NOT NULL COMMENT 'Código del cliente',
-    name VARCHAR(255) NOT NULL COMMENT 'Nombre del cliente',
+    `code` VARCHAR(50) NOT NULL COMMENT 'Código del cliente',
+    `name` VARCHAR(255) NOT NULL COMMENT 'Nombre del cliente',
     contact_person VARCHAR(255) COMMENT 'Persona de contacto',
     email VARCHAR(255) COMMENT 'Email de contacto',
     phone VARCHAR(20) COMMENT 'Teléfono de contacto',
@@ -302,7 +354,7 @@ CREATE TABLE sales_orders (
     order_date DATE NOT NULL COMMENT 'Fecha de la orden',
     delivery_date DATE COMMENT 'Fecha de entrega',
     notes TEXT COMMENT 'Notas adicionales',
-    created_by BIGINT NOT NULL COMMENT 'ID del usuario que creó la orden',
+    created_by BIGINT COMMENT 'ID del usuario que creó la orden',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT 'Fecha de creación',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL COMMENT 'Última actualización',
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE RESTRICT,
@@ -346,7 +398,7 @@ CREATE TABLE stock_movements (
     reference_type VARCHAR(50) COMMENT 'Tipo de referencia (purchase_order, sales_order, etc)',
     reference_id BIGINT COMMENT 'ID de la referencia',
     notes TEXT COMMENT 'Notas del movimiento',
-    created_by BIGINT NOT NULL COMMENT 'ID del usuario que registró el movimiento',
+    created_by BIGINT COMMENT 'ID del usuario que registró el movimiento',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT 'Fecha del movimiento',
     FOREIGN KEY (warehouse_id) REFERENCES warehouses(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT,
@@ -394,7 +446,7 @@ CREATE TABLE stock_counts (
     warehouse_id BIGINT NOT NULL COMMENT 'ID del almacén',
     count_type ENUM('full', 'partial', 'spot_check') DEFAULT 'partial' NOT NULL COMMENT 'Tipo de conteo',
     count_status ENUM('draft', 'in_progress', 'completed', 'cancelled') DEFAULT 'draft' NOT NULL COMMENT 'Estado del conteo',
-    counted_by BIGINT NOT NULL COMMENT 'ID del usuario que contó',
+    counted_by BIGINT COMMENT 'ID del usuario que contó',
     started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT 'Fecha de inicio',
     completed_at TIMESTAMP NULL COMMENT 'Fecha de finalización',
     notes TEXT COMMENT 'Notas del conteo',
@@ -463,7 +515,7 @@ CREATE TABLE warehouse_transfers (
     expected_arrival DATE COMMENT 'Fecha esperada de llegada',
     actual_arrival DATE COMMENT 'Fecha real de llegada',
     notes TEXT COMMENT 'Notas de la transferencia',
-    created_by BIGINT NOT NULL COMMENT 'ID del usuario que creó la transferencia',
+    created_by BIGINT COMMENT 'ID del usuario que creó la transferencia',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT 'Fecha de creación',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL COMMENT 'Última actualización',
     FOREIGN KEY (from_warehouse_id) REFERENCES warehouses(id) ON DELETE RESTRICT,
@@ -518,10 +570,10 @@ CREATE TABLE product_suppliers (
 CREATE TABLE warehouse_zones (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID único de la zona',
     warehouse_id BIGINT NOT NULL COMMENT 'ID del almacén',
-    code VARCHAR(50) NOT NULL COMMENT 'Código de la zona',
-    name VARCHAR(255) NOT NULL COMMENT 'Nombre de la zona',
+    `code` VARCHAR(50) NOT NULL COMMENT 'Código de la zona',
+    `name` VARCHAR(255) NOT NULL COMMENT 'Nombre de la zona',
     zone_type ENUM('receiving', 'storage', 'picking', 'packing', 'shipping', 'returns') NOT NULL COMMENT 'Tipo de zona',
-    description TEXT COMMENT 'Descripción de la zona',
+    `description` TEXT COMMENT 'Descripción de la zona',
     is_active BOOLEAN DEFAULT TRUE NOT NULL COMMENT 'Zona activa/inactiva',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT 'Fecha de creación',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL COMMENT 'Última actualización',
@@ -595,7 +647,7 @@ CREATE TABLE returns_orders (
     return_date DATE NOT NULL COMMENT 'Fecha de solicitud de devolución',
     received_date DATE COMMENT 'Fecha de recepción',
     notes TEXT COMMENT 'Notas de la devolución',
-    created_by BIGINT NOT NULL COMMENT 'ID del usuario que creó la devolución',
+    created_by BIGINT COMMENT 'ID del usuario que creó la devolución',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT 'Fecha de creación',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL COMMENT 'Última actualización',
     FOREIGN KEY (sales_order_id) REFERENCES sales_orders(id) ON DELETE RESTRICT,
@@ -619,7 +671,7 @@ CREATE TABLE return_order_details (
     quantity INT NOT NULL COMMENT 'Cantidad devuelta',
     unit_price DECIMAL(12, 2) NOT NULL COMMENT 'Precio unitario',
     line_total DECIMAL(12, 2) GENERATED ALWAYS AS (quantity * unit_price) STORED COMMENT 'Total de la línea',
-    condition ENUM('new', 'used', 'damaged', 'defective') DEFAULT 'used' COMMENT 'Condición del producto',
+    `condition` ENUM('new', 'used', 'damaged', 'defective') DEFAULT 'used' COMMENT 'Condición del producto',
     notes TEXT COMMENT 'Notas del producto',
     FOREIGN KEY (return_order_id) REFERENCES returns_orders(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE RESTRICT,
@@ -634,8 +686,8 @@ CREATE TABLE audit_log (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID único del log',
     company_id BIGINT NOT NULL COMMENT 'ID de la empresa a la que pertenece',
     user_id BIGINT COMMENT 'ID del usuario',
-    action VARCHAR(100) NOT NULL COMMENT 'Acción realizada',
-    table_name VARCHAR(100) COMMENT 'Tabla afectada',
+    `action` VARCHAR(100) NOT NULL COMMENT 'Acción realizada',
+    `table_name` VARCHAR(100) COMMENT 'Tabla afectada',
     record_id BIGINT COMMENT 'ID del registro afectado',
     old_values JSON COMMENT 'Valores anteriores (JSON)',
     new_values JSON COMMENT 'Valores nuevos (JSON)',
@@ -710,15 +762,23 @@ SELECT
     p.id,
     p.sku,
     p.name,
-    pc.name as category,
+    pc.name AS category,
     p.minimum_stock,
-    COALESCE(SUM(i.available_quantity), 0) as current_stock,
-    (p.minimum_stock - COALESCE(SUM(i.available_quantity), 0)) as shortage
+    COALESCE(SUM(i.available_quantity), 0) AS current_stock,
+    (p.minimum_stock - COALESCE(SUM(i.available_quantity), 0)) AS shortage
 FROM products p
-LEFT JOIN product_categories pc ON p.category_id = pc.id
-LEFT JOIN inventory i ON p.id = i.product_id
-WHERE p.is_active = TRUE AND COALESCE(SUM(i.available_quantity), 0) <= p.minimum_stock
-GROUP BY p.id, p.sku, p.name, pc.name, p.minimum_stock;
+LEFT JOIN product_categories pc 
+    ON p.category_id = pc.id
+LEFT JOIN inventory i 
+    ON p.id = i.product_id
+WHERE p.is_active = TRUE
+GROUP BY 
+    p.id,
+    p.sku,
+    p.name,
+    pc.name,
+    p.minimum_stock
+HAVING COALESCE(SUM(i.available_quantity), 0) <= p.minimum_stock;
 
 -- Vista: Órdenes de venta pendientes
 CREATE OR REPLACE VIEW v_pending_sales_orders AS
@@ -838,7 +898,18 @@ VALUES
     (1, 'CUST-003', 'Mayorista Sur', 'Laura Díaz', 'laura@mayorista.com', '+56 2 5555 7777', 'Calle Sur #700', 'Concepción', 'Chile', 'wholesale', TRUE);
 
 -- Insertar estantes/góndolas
-INSERT INTO shelves (warehouse_id, code, name, shelf_type, row_number, column_number, level_number, capacity_units, capacity_weight_kg, is_active)
+INSERT INTO shelves (
+    warehouse_id,
+    code,
+    name,
+    shelf_type,
+    `row_number`,
+    column_number,
+    level_number,
+    capacity_units,
+    capacity_weight_kg,
+    is_active
+)
 VALUES
     (1, 'RACK-A-01', 'Rack A Nivel 1', 'rack', 1, 1, 1, 500, 1000.00, TRUE),
     (1, 'RACK-A-02', 'Rack A Nivel 2', 'rack', 1, 1, 2, 500, 1000.00, TRUE),
@@ -846,18 +917,23 @@ VALUES
     (1, 'BIN-C-01', 'Bin C', 'bin', 3, 3, 1, 100, 200.00, TRUE);
 
 -- Insertar productos
-INSERT INTO products (sku, name, description, category_id, unit_of_measure, weight_kg, dimensions_length_cm, dimensions_width_cm, dimensions_height_cm, cost_price, selling_price, minimum_stock, maximum_stock, is_perishable, expiry_days, is_active)
+INSERT INTO products 
+( company_id,
+sku, 
+`name`, 
+`description`, 
+category_id, unit_of_measure, weight_kg, dimensionproductss_length_cm, dimensions_width_cm, dimensions_height_cm, cost_price, selling_price, minimum_stock, maximum_stock, is_perishable, expiry_days, is_active)
 VALUES
-    ('PROD-001', 'Laptop Dell XPS', 'Laptop de alta performance', 1, 'unit', 2.5, 35.0, 24.0, 1.5, 600.00, 1299.99, 5, 50, FALSE, NULL, TRUE),
-    ('PROD-002', 'Monitor LG 27"', 'Monitor Full HD', 1, 'unit', 5.0, 61.0, 23.0, 5.0, 150.00, 299.99, 3, 30, FALSE, NULL, TRUE),
-    ('PROD-003', 'Teclado Mecánico', 'Teclado RGB', 1, 'unit', 0.8, 45.0, 15.0, 3.0, 50.00, 129.99, 10, 100, FALSE, NULL, TRUE),
-    ('PROD-004', 'Arroz Premium 1kg', 'Arroz blanco grano largo', 2, 'kg', 1.0, 25.0, 15.0, 8.0, 2.00, 4.99, 100, 500, TRUE, 365, TRUE),
-    ('PROD-005', 'Aceite Vegetal 2L', 'Aceite de girasol refinado', 2, 'liter', 1.8, 20.0, 10.0, 25.0, 3.50, 7.99, 50, 200, TRUE, 730, TRUE),
-    ('PROD-006', 'Papel de Impresora A4', 'Resma 500 hojas', 3, 'box', 2.5, 21.0, 30.0, 10.0, 5.00, 9.99, 50, 200, FALSE, NULL, TRUE),
-    ('PROD-007', 'Bolígrafos x12', 'Bolígrafos azules', 3, 'box', 0.3, 15.0, 8.0, 5.0, 3.00, 5.99, 100, 500, FALSE, NULL, TRUE),
-    ('PROD-008', 'Polera Algodón L', 'Polera blanca talla L', 4, 'unit', 0.3, 70.0, 45.0, 0.5, 8.00, 19.99, 20, 100, FALSE, NULL, TRUE),
-    ('PROD-009', 'Jeans Azul 32', 'Jeans azul talla 32', 4, 'unit', 0.6, 110.0, 40.0, 0.5, 25.00, 59.99, 15, 50, FALSE, NULL, TRUE),
-    ('PROD-010', 'Silla Oficina Negro', 'Silla ergonómica', 5, 'unit', 8.0, 70.0, 70.0, 110.0, 150.00, 349.99, 3, 20, FALSE, NULL, TRUE);
+    (1, 'PROD-001', 'Laptop Dell XPS', 'Laptop de alta performance', 1, 'unit', 2.5, 35.0, 24.0, 1.5, 600.00, 1299.99, 5, 50, FALSE, NULL, TRUE),
+    (1, 'PROD-002', 'Monitor LG 27"', 'Monitor Full HD', 1, 'unit', 5.0, 61.0, 23.0, 5.0, 150.00, 299.99, 3, 30, FALSE, NULL, TRUE),
+    (1, 'PROD-003', 'Teclado Mecánico', 'Teclado RGB', 1, 'unit', 0.8, 45.0, 15.0, 3.0, 50.00, 129.99, 10, 100, FALSE, NULL, TRUE),
+    (1, 'PROD-004', 'Arroz Premium 1kg', 'Arroz blanco grano largo', 2, 'kg', 1.0, 25.0, 15.0, 8.0, 2.00, 4.99, 100, 500, TRUE, 365, TRUE),
+    (1, 'PROD-005', 'Aceite Vegetal 2L', 'Aceite de girasol refinado', 2, 'liter', 1.8, 20.0, 10.0, 25.0, 3.50, 7.99, 50, 200, TRUE, 730, TRUE),
+    (1, 'PROD-006', 'Papel de Impresora A4', 'Resma 500 hojas', 3, 'box', 2.5, 21.0, 30.0, 10.0, 5.00, 9.99, 50, 200, FALSE, NULL, TRUE),
+    (1, 'PROD-007', 'Bolígrafos x12', 'Bolígrafos azules', 3, 'box', 0.3, 15.0, 8.0, 5.0, 3.00, 5.99, 100, 500, FALSE, NULL, TRUE),
+    (1, 'PROD-008', 'Polera Algodón L', 'Polera blanca talla L', 4, 'unit', 0.3, 70.0, 45.0, 0.5, 8.00, 19.99, 20, 100, FALSE, NULL, TRUE),
+    (1, 'PROD-009', 'Jeans Azul 32', 'Jeans azul talla 32', 4, 'unit', 0.6, 110.0, 40.0, 0.5, 25.00, 59.99, 15, 50, FALSE, NULL, TRUE),
+    (1, 'PROD-010', 'Silla Oficina Negro', 'Silla ergonómica', 5, 'unit', 8.0, 70.0, 70.0, 110.0, 150.00, 349.99, 3, 20, FALSE, NULL, TRUE);
 
 -- Insertar inventario
 INSERT INTO inventory (warehouse_id, product_id, quantity, reserved_quantity)
